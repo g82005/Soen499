@@ -1,1 +1,3 @@
 # Soen499
+
+This project belongs to dataset analysis categories which is intended to build a machine learning model to predict financial index and stock price. For example, S&P 500 index, Top 10 tech stocks and so on. All data-set will come from https://www.quandl.com/data/MULTPL-S-P-500-Ratios. Quandl website provides free large dataset which gives a solid fundation for model training. The techniques for this project will be Apache Spark and scikit-learn. In order to maintain the accurancy of prediction. The ETL(extract, transform, and load) process and data warehouse system needs to support this model. ETL is a recurring activity (daily, weekly, monthly) of a Data warehouse system will be automated.
