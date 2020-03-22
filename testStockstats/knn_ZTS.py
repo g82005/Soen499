@@ -59,12 +59,11 @@ if __name__ == '__main__':
     # data_frame.show()
 
     '''
-    calculate label:
+    calculate label column:
     if stock close price increase 5% compare to 5days ago, label should be 1 which mean buy
     if stock close price oscillate less than 5% compare to 5days ago, label should be 0 which mean hold
     if stock close price decrease 5% compare to 5days ago, label should be -1 which mean sell
     '''
-
 
     def precentage(new_data, old_data):
         pg = (new_data - old_data) / old_data * 100
