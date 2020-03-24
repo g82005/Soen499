@@ -1,0 +1,1 @@
+This folder will have all the indicator data for every stock
