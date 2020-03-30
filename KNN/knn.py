@@ -14,6 +14,10 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from indicator import generate_indicator
+import matplotlib.pyplot as matplot
+import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
+
 '''
 HELPER FUNCTIONS
 
@@ -136,12 +140,20 @@ def knn(stock_code):
     # print(type(x))
     # print(x.head())
 
+    # Extracted date column
+    date = new_df[['date']]  #.sort_values(by='date')
+
     '''Scale the dataset to 0-1'''
     min_max_scaler = MinMaxScaler()  # normalization, a lot of choice from sklearn
     x_scale = min_max_scaler.fit_transform(x)
     x = pd.DataFrame(x_scale)
     # print(x.head())
     # print(x.shape)
+
+    # add date to the normalized data
+    x = x.join(date)
+    x = x.set_index('date').astype(float)
+    # print(x.head())
 
     y = new_df['label'].values
     # print(y)
@@ -157,10 +169,40 @@ def knn(stock_code):
     y_pred = knn.predict(x_test)
     # print(y_pred)
 
+    # To see the index values, which is the dates
+    # print("xtest: " + str(x_test.index.sort_values()))
+
+    # To get the size of each training and testing sets
+    # print("xtrain" + str(len(x_train)))
+    # print("ytrain" + str(len(y_train)))
+    # print("xtest" + str(len(x_test)))
+    # print("ytest" + str(len(y_test)))
+    # print("ypred" + str(len(y_pred)))
+
+    # Used Matplotlib to show the difference between test and prediction on a graph
+    # sortedDates = x_test.index.sort_values()
+    # matplot.scatter(sortedDates, y_test, color="red")
+    # matplot.scatter(sortedDates, y_pred, color="green")
+    # matplot.title("Prediction for " + stock_code)
+    # matplot.xlabel("Date")
+    # matplot.ylabel("Value")
+    # labels = ['']*len(sortedDates)
+    # labels[::40] = [date for date in sortedDates[::40]]
+    # matplot.gca().xaxis.set_major_formatter(ticker.FixedFormatter(labels))
+    # matplot.gcf().autofmt_xdate()
+    # matplot.show()
+
     # Calculate accuracy and f1
     accuracy = metrics.accuracy_score(y_test, y_pred)
     f1 = metrics.f1_score(y_test, y_pred, average='weighted')
+    score = knn.score(x_test, y_test)
     print(stock_code+": Accuracy:", accuracy)
     print(stock_code+": F1_score:", f1)
+    print(stock_code+": Score:", score)
     return (accuracy, f1)
+
+
+
+# For testing purposes
+# knn("ZTS")
 
