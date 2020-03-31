@@ -12,6 +12,8 @@ from pyspark.sql.functions import *
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 from sklearn import metrics
 from indicator import generate_indicator
 import matplotlib.pyplot as matplot
@@ -159,11 +161,26 @@ def knn(stock_code):
     # print(y)
     # print(y.shape)
 
+    # Using the normal K Nearest Neighbors Classifier
+    # accuracy, f1 = useKNeighborsClassifier(x, y, stock_code)
+
+    # Using the Grid Search Cross Validation to determine the best n_neighbors value
+    # accuracy, f1 = useKnnGridSearch(x, y, stock_code)
+
+    # Using K Fold Cross Validation
+    # accuracy, f1 = useTuning(x, y, stock_code)
+
+    # Using the manual method to find the best K value
+    accuracy, f1 = useKnnWithBestK(x, y, stock_code)
+
+    return (accuracy, f1)
+
+def useKNeighborsClassifier(x, y, stock_code):
     # Split dataset to training and testing
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, train_size=0.8, random_state=42,
                                                         stratify=y)
     # n_neighbors is the parameter for K values
-    knn = KNeighborsClassifier(n_neighbors=7, metric='euclidean', p=2)
+    knn = KNeighborsClassifier(n_neighbors=5, metric='euclidean', p=2)
     knn.fit(x_train, y_train)
 
     y_pred = knn.predict(x_test)
@@ -179,18 +196,7 @@ def knn(stock_code):
     # print("ytest" + str(len(y_test)))
     # print("ypred" + str(len(y_pred)))
 
-    # Used Matplotlib to show the difference between test and prediction on a graph
-    # sortedDates = x_test.index.sort_values()
-    # matplot.scatter(sortedDates, y_test, color="red")
-    # matplot.scatter(sortedDates, y_pred, color="green")
-    # matplot.title("Prediction for " + stock_code)
-    # matplot.xlabel("Date")
-    # matplot.ylabel("Value")
-    # labels = ['']*len(sortedDates)
-    # labels[::40] = [date for date in sortedDates[::40]]
-    # matplot.gca().xaxis.set_major_formatter(ticker.FixedFormatter(labels))
-    # matplot.gcf().autofmt_xdate()
-    # matplot.show()
+    drawGraph(stock_code, x_test, y_test, y_pred)
 
     # Calculate accuracy and f1
     accuracy = metrics.accuracy_score(y_test, y_pred)
@@ -199,10 +205,143 @@ def knn(stock_code):
     print(stock_code+": Accuracy:", accuracy)
     print(stock_code+": F1_score:", f1)
     print(stock_code+": Score:", score)
-    return (accuracy, f1)
+
+    return accuracy, f1
+
+# Reference: https://towardsdatascience.com/building-a-k-nearest-neighbors-k-nn-model-with-scikit-learn-51209555453a
+def useKnnGridSearch(x, y, stock_code):
+    knn = KNeighborsClassifier()
+
+    nNeighborsRange = {'n_neighbors': np.arange(1,50)}
+
+    knnWithGridSearch = GridSearchCV(knn, nNeighborsRange, cv=10)
+
+    knnWithGridSearch.fit(x, y)
+
+    print(knnWithGridSearch.best_params_)
+    print(str(knnWithGridSearch.best_score_))
+
+    # Split dataset to training and testing
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, train_size=0.8, random_state=42,
+                                                        stratify=y)
+    knnWithBestK = KNeighborsClassifier(n_neighbors=knnWithGridSearch.best_params_['n_neighbors'], metric='euclidean', p=2)
+
+    knnWithBestK.fit(x_train, y_train)
+
+    y_pred = knnWithBestK.predict(x_test)
+
+    drawGraph(stock_code, x_test, y_test, y_pred)
+
+    # Calculate accuracy and f1
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+    f1 = metrics.f1_score(y_test, y_pred, average='weighted')
+    score = knnWithBestK.score(x_test, y_test)
+    print(stock_code+": Accuracy:", accuracy)
+    print(stock_code+": F1_score:", f1)
+    print(stock_code+": Score:", score)
+
+    return accuracy, f1
+
+# Reference: https://kevinzakka.github.io/2016/07/13/k-nearest-neighbor/
+def useKFold(x, y, stock_code):
+    # Split dataset to training and testing
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, train_size=0.8, random_state=42,
+                                                        stratify=y)
+    neighbors = list(range(1, 50))
+    scoresAccuracy = []
+    # scoresF1= []
+    kBest = 0
+    scoreBest = 0
+    knnBest = KNeighborsClassifier()
+    for kValue in range(1, 50):
+        knn = KNeighborsClassifier(n_neighbors=kValue, metric='euclidean', p=2)
+        scoreA = cross_val_score(knn, x_train, y_train, cv=10, scoring="accuracy")
+        # scoreF = cross_val_score(knn, x_train, y_train, cv=10, scoring="weighted")
+        averageScoreA = scoreA.mean()
+        scoresAccuracy.append(averageScoreA)
+        # scoresF1.append(scoreF.mean())
+        if(averageScoreA > scoreBest):
+            kBest = kValue
+            scoreBest = averageScoreA
+            knnBest = knn
+
+    print("K: "+str(kBest) + " | Score: "+str(scoreBest))
+
+    knn.fit(x_train, y_train)
+
+    y_pred = knn.predict(x_test)
+
+    drawGraph(stock_code, x_test, y_test, y_pred)
+
+    # Calculate accuracy and f1
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+    f1 = metrics.f1_score(y_test, y_pred, average='weighted')
+    score = knn.score(x_test, y_test)
+    print(stock_code+": Accuracy:", accuracy)
+    print(stock_code+": F1_score:", f1)
+    print(stock_code+": Score:", score)
+
+    return accuracy, f1
+
+def useKnnWithBestK(x, y, stock_code):
+    # Split dataset to training and testing
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, train_size=0.8, random_state=42,
+                                                        stratify=y)
+
+    # knnBest = KNeighborsClassifier()
+    accuracyBest = 0
+    f1Best = 0
+    scoreBest = 0
+    kBest = 0
+    xBest = []
+    yTBest = []
+    yPBest = []
+    for k in range(1, 25):
+        # n_neighbors is the parameter for K values
+        knn = KNeighborsClassifier(n_neighbors=k, metric='euclidean', p=2)
+        knn.fit(x_train, y_train)
+
+        y_pred = knn.predict(x_test)
+
+        # Calculate accuracy and f1
+        accuracy = metrics.accuracy_score(y_test, y_pred)
+        f1 = metrics.f1_score(y_test, y_pred, average='weighted')
+        score = knn.score(x_test, y_test)
+
+        if(accuracy > accuracyBest):
+            print("Current: " + str(accuracy) + " | Previous: " + str(accuracyBest)) 
+            accuracyBest = accuracy
+            f1Best = f1
+            scoreBest = score
+            kBest = k
+            xBest = x_test
+            yTBest = y_test
+            yPBest = y_pred
+
+    print(stock_code+": Accuracy:", accuracyBest)
+    print(stock_code+": F1_score:", f1Best)
+    print(stock_code+": Score:", scoreBest)
+    print(stock_code+": Best K:", kBest)
+
+    drawGraph(stock_code, xBest, yTBest, yPBest)
+
+    return accuracy, f1
 
 
+def drawGraph(stock_code, x_test, y_test, y_pred):
+    # Used Matplotlib to show the difference between test and prediction on a graph
+    sortedDates = x_test.index.sort_values()
+    matplot.scatter(sortedDates, y_test, color="red")
+    matplot.scatter(sortedDates, y_pred, color="green")
+    matplot.title("Prediction for " + stock_code)
+    matplot.xlabel("Date")
+    matplot.ylabel("Value")
+    labels = ['']*len(sortedDates)
+    labels[::40] = [date for date in sortedDates[::40]]
+    matplot.gca().xaxis.set_major_formatter(ticker.FixedFormatter(labels))
+    matplot.gcf().autofmt_xdate()
+    matplot.show()
 
 # For testing purposes
-# knn("ZTS")
+knn("ZTS")
 
