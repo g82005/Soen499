@@ -95,6 +95,7 @@ def knn(stock_code):
     type: <class 'pandas.core.frame.DataFrame'>
     
     Use pyspark window, lead, and lag function:
+    Ref: https://riptutorial.com/apache-spark/example/22861/window-functions---sort--lead--lag---rank---trend-analysis
     '''
     new_df = data_frame.withColumn('lag', lag('close', 5).over(Window.orderBy(asc('date'))))
     # new_df.show()

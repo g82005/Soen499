@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# csv output
+KNN/sp500_indicator/
+KNN/sp500_knn.csv
