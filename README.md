@@ -48,3 +48,7 @@ Using the same data set, we will implement association rules to identify positiv
   <p align="center">Table 2: Example of association rule</p>
 </p>
 
+### Prerequisite
+
+
+

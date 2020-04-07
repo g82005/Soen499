@@ -129,32 +129,4 @@ dmypy.json
 .pyre/
 
 # csv output
-KNN/sp500_indicator/
-KNN/sp500_knn.csv
 *.crc
-Association_Rule/2013_0__interest/_SUCCESS
-Association_Rule/2013_0_freq_itemsets/_SUCCESS
-Association_Rule/2013_1__interest/_SUCCESS
-Association_Rule/2013_1_freq_itemsets/_SUCCESS
-Association_Rule/2014_0__interest/_SUCCESS
-Association_Rule/2014_0_freq_itemsets/_SUCCESS
-Association_Rule/2014_1__interest/_SUCCESS
-Association_Rule/2014_1_freq_itemsets/_SUCCESS
-Association_Rule/2015_0__interest/_SUCCESS
-Association_Rule/2015_0_freq_itemsets/_SUCCESS
-Association_Rule/2015_1__interest/_SUCCESS
-Association_Rule/2015_1_freq_itemsets/_SUCCESS
-Association_Rule/2016_0__interest/_SUCCESS
-Association_Rule/2016_0_freq_itemsets/_SUCCESS
-Association_Rule/2016_1__interest/_SUCCESS
-Association_Rule/2016_1_freq_itemsets/_SUCCESS
-Association_Rule/2017_0__interest/_SUCCESS
-Association_Rule/2017_0_freq_itemsets/_SUCCESS
-Association_Rule/2017_1__interest/_SUCCESS
-Association_Rule/2017_1_freq_itemsets/_SUCCESS
-Association_Rule/freq_itemsets.csv/_SUCCESS
-Association_Rule/interest.csv/_SUCCESS
-Association_Rule/opposite/freq_itemsets.csv/_SUCCESS
-Association_Rule/opposite/interest.csv/_SUCCESS
-Association_Rule/similar/freq_itemsets.csv/_SUCCESS
-Association_Rule/similar/interest.csv/_SUCCESS
