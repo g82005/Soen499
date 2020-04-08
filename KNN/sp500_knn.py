@@ -1,4 +1,4 @@
-from knn import knn
+from one_stock_knn import knn
 import pandas as pd
 import os
 import time
@@ -24,9 +24,10 @@ if __name__ == "__main__":
         sp500_f1.append(knnResults[1])
         sp500_kfold_accuracy.append(knnResults[2])
         sp500_k_fold_f1.append(knnResults[3])
-    sp500_knn = {"Stock_code":sp500_code,"Accuracy":sp500_accuracy,"F1_score":sp500_f1,"K-Fold_accuracy":sp500_kfold_accuracy,"K-Fold_f1_score":sp500_k_fold_f1}
-    df = pd.DataFrame(sp500_knn, columns= ['Stock_code', 'Accuracy','F1_score', 'K-Fold_accuracy', 'K-Fold_f1_score'])
-    df.to_csv('sp500_knn.csv',index = False, header=True)
+    sp500_knn = {"Stock_code": sp500_code, "Accuracy": sp500_accuracy, "F1_score": sp500_f1,
+                 "K-Fold_accuracy": sp500_kfold_accuracy, "K-Fold_f1_score": sp500_k_fold_f1}
+    df = pd.DataFrame(sp500_knn, columns=['Stock_code', 'Accuracy', 'F1_score', 'K-Fold_accuracy', 'K-Fold_f1_score'])
+    df.to_csv('results/sp500_knn.csv', index=False, header=True)
     print("Done")
     end = time.time()
-    print("Runing time: %s s"%(end - start))
+    print("Runing time: %s s" % (end - start))
