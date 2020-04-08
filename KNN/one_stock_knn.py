@@ -205,8 +205,8 @@ def useKNeighborsClassifier(x, y, stock_code, showDataVisualization):
     print(stock_code+": Accuracy:", accuracy)
     print(stock_code+": F1_score:", f1)
 
-    if(showDataVisualization):
-        drawGraph(stock_code, x_test, y_test, y_pred)
+    # if(showDataVisualization):
+    #     drawGraph(stock_code, x_test, y_test, y_pred)
 
     return accuracy, f1
 
@@ -221,10 +221,14 @@ def useKFold(x, y, stock_code, showDataVisualization):
     kBest = 0
     scoreBest = 0
     knnBest = KNeighborsClassifier()
+    allK = []
+    allScores = []
     for kValue in range(1, 50):
         knn = KNeighborsClassifier(n_neighbors=kValue, metric='euclidean', p=2)
         scoreA = cross_val_score(knn, x_train, y_train, cv=10, scoring="accuracy")
         averageScoreA = scoreA.mean()
+        allK.append(kValue)
+        allScores.append(averageScoreA)
         # scoresAccuracy.append(averageScoreA)
         if(averageScoreA > scoreBest):
             kBest = kValue
@@ -247,6 +251,7 @@ def useKFold(x, y, stock_code, showDataVisualization):
 
     if(showDataVisualization):
         drawGraph(stock_code, x_test, y_test, y_pred)
+        drawGraphForKValues(stock_code, allK, allScores)
 
     return accuracy, f1
 
@@ -262,6 +267,14 @@ def drawGraph(stock_code, x_test, y_test, y_pred):
     labels[::40] = [date for date in sortedDates[::40]]
     matplot.gca().xaxis.set_major_formatter(ticker.FixedFormatter(labels))
     matplot.gcf().autofmt_xdate()
+    matplot.show()
+
+def drawGraphForKValues(stock_code, k, scores):
+    # Used Matplotlib to show the difference between test and prediction on a graph
+    matplot.plot(k, scores)
+    matplot.title("Best N Neighbor value for " + stock_code)
+    matplot.xlabel("K Value")
+    matplot.ylabel("Cross-Validation Score")
     matplot.show()
 
 
