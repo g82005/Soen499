@@ -233,9 +233,9 @@ def useKFold(x, y, stock_code, showDataVisualization):
 
     # print("K: "+str(kBest) + " | Score: "+str(scoreBest))
 
-    knn.fit(x_train, y_train)
+    knnBest.fit(x_train, y_train)
 
-    y_pred = knn.predict(x_test)
+    y_pred = knnBest.predict(x_test)
 
     # Calculate accuracy and f1
     accuracy = metrics.accuracy_score(y_test, y_pred)

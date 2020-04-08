@@ -1,6 +1,6 @@
 # This python file is used to view the data visualization of the accuracy of the model
 
-from knn import knn
+from one_stock_knn import knn
 
 if __name__ == "__main__":
     # knn(stockName, showDataVisualization)
