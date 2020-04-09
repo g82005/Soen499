@@ -47,16 +47,16 @@ def toCSVLine(data):
         return toCSVLineRDD(data.rdd)
     return None
 
+# Initialize a spark session.
+def init_spark():
+    spark = SparkSession \
+        .builder \
+        .appName("Python Spark SQL basic example") \
+        .config("spark.some.config.option", "some-value") \
+        .getOrCreate()
+    return spark
 
 def knn(stock_code, showDataVisualization):
-    # Initialize a spark session.
-    def init_spark():
-        spark = SparkSession \
-            .builder \
-            .appName("Python Spark SQL basic example") \
-            .config("spark.some.config.option", "some-value") \
-            .getOrCreate()
-        return spark
 
     spark = init_spark()
 
@@ -205,8 +205,8 @@ def useKNeighborsClassifier(x, y, stock_code, showDataVisualization):
     print(stock_code+": Accuracy:", accuracy)
     print(stock_code+": F1_score:", f1)
 
-    if(showDataVisualization):
-        drawGraph(stock_code, x_test, y_test, y_pred)
+    # if(showDataVisualization):
+    #     drawGraph(stock_code, x_test, y_test, y_pred)
 
     return accuracy, f1
 
@@ -215,17 +215,17 @@ def useKFold(x, y, stock_code, showDataVisualization):
     # Split dataset to training and testing
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, train_size=0.8, random_state=42,
                                                         stratify=y)
-    # neighbors = list(range(1, 50))
-    # scoresAccuracy = []
-    # scoresF1= []
     kBest = 0
     scoreBest = 0
     knnBest = KNeighborsClassifier()
+    allK = []
+    allScores = []
     for kValue in range(1, 50):
         knn = KNeighborsClassifier(n_neighbors=kValue, metric='euclidean', p=2)
         scoreA = cross_val_score(knn, x_train, y_train, cv=10, scoring="accuracy")
         averageScoreA = scoreA.mean()
-        # scoresAccuracy.append(averageScoreA)
+        allK.append(kValue)
+        allScores.append(averageScoreA)
         if(averageScoreA > scoreBest):
             kBest = kValue
             scoreBest = averageScoreA
@@ -236,6 +236,8 @@ def useKFold(x, y, stock_code, showDataVisualization):
     knnBest.fit(x_train, y_train)
 
     y_pred = knnBest.predict(x_test)
+    # print(x_test.index)
+    writePredictions(stock_code, x_test.index, y_pred)
 
     # Calculate accuracy and f1
     accuracy = metrics.accuracy_score(y_test, y_pred)
@@ -247,6 +249,7 @@ def useKFold(x, y, stock_code, showDataVisualization):
 
     if(showDataVisualization):
         drawGraph(stock_code, x_test, y_test, y_pred)
+        drawGraphForKValues(stock_code, allK, allScores)
 
     return accuracy, f1
 
@@ -264,4 +267,18 @@ def drawGraph(stock_code, x_test, y_test, y_pred):
     matplot.gcf().autofmt_xdate()
     matplot.show()
 
+def drawGraphForKValues(stock_code, k, scores):
+    # Used Matplotlib to show the difference between test and prediction on a graph
+    matplot.plot(k, scores)
+    matplot.title("Best N Neighbor value for " + stock_code)
+    matplot.xlabel("K Value")
+    matplot.ylabel("Cross-Validation Score")
+    matplot.show()
+
+
+def writePredictions(stock, dates, predictions):
+    df = pd.DataFrame(list(zip(dates, predictions)), columns = ['Date', 'Prediction'])
+    # print(df)
+    sortedDf = df.sort_values(by='Date')
+    sortedDf.to_csv('sp500_predictions/'+stock+'.csv', index=False, header=True)
 
