@@ -88,7 +88,7 @@ stock_window = Window.partitionBy('Name')
 |2013-02-26|40.62| 41.29| 40.19|40.97| 6185811|   A|41.29|
 '''
 
-for year in range(2016, 2018):
+for year in range(2013, 2018):
 
     for e in range(2):
 
